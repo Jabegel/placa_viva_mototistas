@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import api from '../../services/api';
 
-export default function Dashboard({ route }: any) {
+export default function Dashboard({ route, navigation }: any) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -56,7 +56,14 @@ export default function Dashboard({ route }: any) {
         <TouchableOpacity style={styles.actionButton}>
           <Text style={styles.actionText}>Abastecer Agora</Text>
         </TouchableOpacity>
-        
+
+        <TouchableOpacity
+          style={[styles.actionButton, styles.secondaryButton]}
+          onPress={() => navigation.navigate('History')}
+        >
+          <Text style={styles.actionText}>Ver Histórico de Economia</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={[styles.actionButton, styles.secondaryButton]}>
           <Text style={styles.actionText}>Ver Postos Próximos</Text>
         </TouchableOpacity>
@@ -84,3 +91,4 @@ const styles = StyleSheet.create({
   secondaryButton: { backgroundColor: '#2C5A8A' },
   actionText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
 });
+
