@@ -1,0 +1,109 @@
+# ==========================================
+# Node / React Native
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Expo
+.expo/
+.expo-shared/
+
+# React Native bundle
+*.bundle
+
+# Metro
+.metro-health-check*
+
+# ==========================================
+# Build Android
+# ==========================================
+android/app/build/
+android/build/
+android/.gradle/
+*.keystore
+*.jks
+
+# ==========================================
+# Build iOS
+# ==========================================
+ios/build/
+ios/Pods/
+*.xcworkspace
+*.xcuserdata
+*.xcuserstate
+DerivedData/
+
+# Mantém o Podfile.lock versionado
+!ios/Podfile.lock
+
+# ==========================================
+# Ambiente
+# ==========================================
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Logs
+# ==========================================
+logs/
+*.log
+
+# ==========================================
+# Cache
+# ==========================================
+.cache/
+.tmp/
+.temp/
+.vscode/
+.idea/
+
+# ==========================================
+# Sistema Operacional
+# ==========================================
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# Go
+# ==========================================
+bin/
+pkg/
+*.exe
+*.test
+*.out
+
+# Coverage
+coverage.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# ==========================================
+# Arquivos compilados
+# ==========================================
+dist/
+build/
+
+# ==========================================
+# Testes
+# ==========================================
+coverage/
+.nyc_output/
+
+# ==========================================
+# Secrets
+# ==========================================
+*.pem
+*.key
+*.p12
+
+# ==========================================
+# Firebase (se usar)
+# ==========================================
+google-services.json
+GoogleService-Info.plist
