@@ -12,14 +12,11 @@ import {
   Platform,
 } from 'react-native';
 
-import { useUser } from '../context/UserContext';
-
-const API_URL = 'http://192.168.0.5:8080';
+const API_URL = 'http://localhost:8080';
 const NAVY = '#1a2e4a';
 
 export default function VerifyCodeScreen({ route, navigation }: any) {
   const { phone, maskedPhone } = route.params;
-  const { setUser } = useUser();
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(60);
@@ -82,9 +79,7 @@ export default function VerifyCodeScreen({ route, navigation }: any) {
       // Salva token e navega para home
       // Em produção: salvar no AsyncStorage ou SecureStore
       console.log('Token:', data.token);
-      // Salva telefone no contexto global (nome vem do perfil depois)
-      setUser({ phone, name: data.name || phone });
-      navigation.replace('WelcomeName');
+      navigation.replace('CitySelect');
     } catch (error) {
       Alert.alert('Erro', 'Sem conexão. Tente novamente.');
     } finally {

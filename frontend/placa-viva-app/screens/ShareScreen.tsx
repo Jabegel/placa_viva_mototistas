@@ -79,9 +79,9 @@ export default function ShareScreen({ navigation }: any) {
         {[
           { icon: '🎫', label: 'Cupons',    onPress: () => navigation.navigate('Coupons') },
           { icon: '📍', label: 'Mapa',      onPress: () => {} },
-          { icon: '❤️', label: 'LifeStyle', onPress: () => navigation.navigate('Lifestyle') },
+          { icon: '❤️', label: 'Favoritos', onPress: () => {} },
           { icon: '↗️', label: 'Indicar',   onPress: () => {}, active: true },
-          { icon: '☰', label: 'Menu',      onPress: () => navigation.navigate('Profile') },
+          { icon: '☰', label: 'Menu',      onPress: () => {} },
         ].map((item: any) => (
           <TouchableOpacity key={item.label} style={styles.navItem} onPress={item.onPress}>
             <Text style={styles.navIcon}>{item.icon}</Text>
@@ -132,7 +132,11 @@ const styles = StyleSheet.create({
   socialIcon: { fontSize: 22 },
 
   // Bottom Nav
-  bottomNav: {flexDirection: 'row',backgroundColor: '#fff',position: 'absolute',bottom: 55,left: 20,right: 20,height: 65,borderRadius: 20,paddingVertical: 8,shadowColor: '#000',shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1,shadowRadius: 10,elevation: 10,borderTopWidth: 0,},
+  bottomNav: {
+    flexDirection: 'row', backgroundColor: '#fff',
+    borderTopWidth: 1, borderTopColor: '#eee',
+    paddingVertical: 8, paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+  },
   navItem: { flex: 1, alignItems: 'center', gap: 2 },
   navIcon: { fontSize: 18 },
   navLabel: { fontSize: 10, color: '#aab0bc' },

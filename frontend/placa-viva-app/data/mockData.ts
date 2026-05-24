@@ -40,6 +40,7 @@ export const MOCK_COUPONS_BY_STATION: Record<string, Coupon[]> = {
     { id: 'c1', fuelType: 'Gasolina', fuelSubtype: 'Comum',    price: 6.12, tag: 'Mais vantajoso que etanol hoje', color: '#c8a832' },
     { id: 'c2', fuelType: 'Etanol',   fuelSubtype: 'Comum',    price: 4.78, color: '#4a7c3f' },
     { id: 'c3', fuelType: 'Gasolina', fuelSubtype: 'Aditivada',price: 6.35, color: '#2d6a8a' },
+    { id: 'c4', fuelType: 'GNV',      fuelSubtype: '',          price: 3.99, tag: 'Economia de até 40%', color: '#5e4a8a' },
   ],
   'posto-312-norte': [
     { id: 'c1', fuelType: 'Gasolina', fuelSubtype: 'Comum',    price: 6.03, color: '#c8a832' },
@@ -109,16 +110,3 @@ Este cupom concede ao usuário o preço dinâmico para o produto indicado, confo
 export function getCoupons(stationId: string): Coupon[] {
   return MOCK_COUPONS_BY_STATION[stationId] ?? MOCK_COUPONS_BY_STATION['default'];
 }
-
-// ─── CIDADES PARA SELEÇÃO ──────────────────────────────────────────────────────
-export const MOCK_CITIES = [
-  { state: 'Distrito Federal', cities: [
-    { id: 'brasilia',   name: 'Brasília',   state: 'DF' },
-    { id: 'taguatinga', name: 'Taguatinga', state: 'DF' },
-  ]},
-  { state: 'Goiás', cities: [
-    { id: 'abadiania', name: 'Abadiânia', state: 'GO' },
-    { id: 'goiania',   name: 'Goiânia',   state: 'GO' },
-    { id: 'luziania',  name: 'Luziânia',  state: 'GO' },
-  ]},
-];

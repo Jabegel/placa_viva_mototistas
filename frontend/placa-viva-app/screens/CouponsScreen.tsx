@@ -2,15 +2,12 @@ import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
   ScrollView, Modal, TextInput, StatusBar, ImageBackground,
-  Alert, Platform, Linking, Dimensions,
+  Alert, Platform,
 } from 'react-native';
 import { getCoupons, type Coupon } from '../data/mockData';
 
-import { useUser } from '../context/UserContext';
-
 const NAVY = '#1a2e4a';
-const API_URL = 'http://192.168.0.5:8080';
-const { width: SCREEN_W } = Dimensions.get('window');
+const API_URL = 'http://localhost:8080';
 
 export default function CouponsScreen({ route, navigation }: any) {
   const { city, station } = route?.params || {
@@ -18,13 +15,10 @@ export default function CouponsScreen({ route, navigation }: any) {
     station: { id: 'posto-214-sul', name: 'Posto 214 Sul', brand: 'Petrobras', neighborhood: 'Asa Sul' },
   };
 
-  const { user } = useUser();
   const coupons = getCoupons(station?.id);
   const [plate, setPlate] = useState('');
   const [savedPlate, setSavedPlate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [routesVisible, setRoutesVisible] = useState(false);
-  const [calcModalVisible, setCalcModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const formatPlate = (text: string) => {
@@ -37,9 +31,7 @@ export default function CouponsScreen({ route, navigation }: any) {
     if (!savedPlate) {
       setModalVisible(true);
     } else {
-      navigation.navigate('CouponDetail', {
-        coupon, station, plate: savedPlate,
-      });
+      navigation.navigate('CouponDetail', { coupon, station, plate: savedPlate });
     }
   };
 
@@ -51,17 +43,6 @@ export default function CouponsScreen({ route, navigation }: any) {
     setSavedPlate(plate);
     setModalVisible(false);
     setSaving(false);
-  };
-
-
-  const openWaze = () => {
-    Linking.openURL(`waze://?q=${encodeURIComponent((station?.name || '') + ' ' + (station?.neighborhood || ''))}&navigate=yes`)
-      .catch(() => Linking.openURL('https://waze.com'));
-  };
-
-  const openGoogleMaps = () => {
-    const q = encodeURIComponent(`${station?.name || ''} ${station?.neighborhood || ''}`);
-    Linking.openURL(`https://maps.google.com/?q=${q}`);
   };
 
   return (
@@ -97,19 +78,11 @@ export default function CouponsScreen({ route, navigation }: any) {
             </View>
           </ImageBackground>
           <View style={styles.stationInfoCard}>
-            <View style={styles.stationNameRow}>
-              <Text style={styles.stationName}>{station?.name?.toUpperCase()}</Text>
-              <TouchableOpacity
-                style={styles.changeStationBtn}
-                onPress={() => navigation.navigate('StationSelect', { city })}
-              >
-                <Text style={styles.changeStationText}>↩ Trocar posto</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.stationName}>{station?.name?.toUpperCase()}</Text>
             <Text style={styles.stationLocation}>
               {city?.name?.toUpperCase()} – {station?.neighborhood?.toUpperCase() || 'ASA SUL'}
             </Text>
-            <TouchableOpacity style={styles.goToStation} onPress={() => setRoutesVisible(true)}>
+            <TouchableOpacity style={styles.goToStation}>
               <Text style={styles.pinEmoji}>📍</Text>
               <Text style={styles.goToText}>Vá até o posto</Text>
               <Text style={styles.chevron}>›</Text>
@@ -120,7 +93,7 @@ export default function CouponsScreen({ route, navigation }: any) {
         {/* Saudação */}
         <View style={styles.section}>
           <Text style={styles.greeting}>
-            {savedPlate ? `Placa ${savedPlate}` : (user.name || 'Olá')}, aqui estão os seus cupons
+            {savedPlate ? `Placa ${savedPlate}` : 'Arliton'}, aqui estão os seus cupons
           </Text>
         </View>
 
@@ -132,7 +105,7 @@ export default function CouponsScreen({ route, navigation }: any) {
                 <View style={styles.tagBadge}><Text style={styles.tagText}>{coupon.tag}</Text></View>
               )}
               <View style={[styles.couponCard, { backgroundColor: coupon.color },
-              coupon.tag ? styles.couponNoTopRadius : null]}>
+                coupon.tag ? styles.couponNoTopRadius : null]}>
                 <View>
                   <Text style={styles.couponFuelType}>{coupon.fuelType}</Text>
                   <Text style={styles.couponFuelSubtype}>{coupon.fuelSubtype}</Text>
@@ -144,7 +117,7 @@ export default function CouponsScreen({ route, navigation }: any) {
               </View>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity onPress={() => setCalcModalVisible(true)}>
+          <TouchableOpacity>
             <Text style={styles.howCalc}>Entenda como este cálculo é feito</Text>
           </TouchableOpacity>
         </View>
@@ -153,11 +126,11 @@ export default function CouponsScreen({ route, navigation }: any) {
       {/* Bottom Nav */}
       <View style={styles.bottomNav}>
         {[
-          { icon: '🎫', label: 'Cupons', active: true, onPress: () => { } },
-          { icon: '📍', label: 'Mapa', active: false, onPress: () => setRoutesVisible(true) },
-          { icon: '❤️', label: 'LifeStyle', onPress: () => navigation.navigate('Lifestyle') },
-          { icon: '↗️', label: 'Indicar', active: false, onPress: () => navigation.navigate('Share') },
-          { icon: '☰', label: 'Menu', active: false, onPress: () => navigation.navigate('Profile') },
+          { icon: '🎫', label: 'Cupons',    active: true,  onPress: () => {} },
+          { icon: '📍', label: 'Mapa',      active: false, onPress: () => {} },
+          { icon: '❤️', label: 'Favoritos', active: false, onPress: () => {} },
+          { icon: '↗️', label: 'Indicar',   active: false, onPress: () => navigation.navigate('Share') },
+          { icon: '☰', label: 'Menu',      active: false, onPress: () => {} },
         ].map((item) => (
           <TouchableOpacity key={item.label} style={styles.navItem} onPress={item.onPress}>
             <Text style={styles.navIcon}>{item.icon}</Text>
@@ -203,78 +176,6 @@ export default function CouponsScreen({ route, navigation }: any) {
           </View>
         </View>
       </Modal>
-
-      {/* Modal — Como o cálculo é feito */}
-      <Modal visible={calcModalVisible} transparent animationType="slide" onRequestClose={() => setCalcModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.calcSheet}>
-            <View style={styles.calcHeader}>
-              <Text style={styles.calcTitle}>Como o preço é calculado?</Text>
-              <TouchableOpacity onPress={() => setCalcModalVisible(false)}>
-                <Text style={styles.calcClose}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={styles.calcStep}>
-                <Text style={styles.calcStepIcon}>⛽</Text>
-                <View style={styles.calcStepText}>
-                  <Text style={styles.calcStepTitle}>Preço de referência do posto</Text>
-                  <Text style={styles.calcStepDesc}>Consultamos em tempo real o preço praticado pelo posto no momento do seu acesso ao app.</Text>
-                </View>
-              </View>
-              <View style={styles.calcStep}>
-                <Text style={styles.calcStepIcon}>🏷️</Text>
-                <View style={styles.calcStepText}>
-                  <Text style={styles.calcStepTitle}>Desconto Placa Viva</Text>
-                  <Text style={styles.calcStepDesc}>Aplicamos o desconto negociado exclusivamente para clientes cadastrados com placa ativa.</Text>
-                </View>
-              </View>
-              <View style={styles.calcStep}>
-                <Text style={styles.calcStepIcon}>📊</Text>
-                <View style={styles.calcStepText}>
-                  <Text style={styles.calcStepTitle}>Comparativo etanol × gasolina</Text>
-                  <Text style={styles.calcStepDesc}>Calculamos automaticamente se o etanol é mais vantajoso. Se o preço do etanol for menor que 70% da gasolina, vale a pena abastecer com etanol.</Text>
-                </View>
-              </View>
-              <View style={styles.calcStep}>
-                <Text style={styles.calcStepIcon}>⚡</Text>
-                <View style={styles.calcStepText}>
-                  <Text style={styles.calcStepTitle}>Preço dinâmico</Text>
-                  <Text style={styles.calcStepDesc}>Os valores são dinâmicos e podem mudar a qualquer momento. O preço aplicado é sempre o confirmado na validação do cupom no posto, antes do abastecimento.</Text>
-                </View>
-              </View>
-              <View style={styles.calcNote}>
-                <Text style={styles.calcNoteText}>💡 Apresente o cupom ao frentista ANTES de abastecer para garantir o desconto.</Text>
-              </View>
-            </ScrollView>
-            <TouchableOpacity style={styles.calcButton} onPress={() => setCalcModalVisible(false)}>
-              <Text style={styles.calcButtonText}>Entendi</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Modal Rotas */}
-      <Modal visible={routesVisible} animationType="fade" transparent onRequestClose={() => setRoutesVisible(false)}>
-        <TouchableOpacity style={styles.routesOverlay} activeOpacity={1} onPress={() => setRoutesVisible(false)}>
-          <View style={styles.routesSheet}>
-            <View style={styles.routesHeader}>
-              <Text style={styles.routesTitle}>Dirija até o {station?.name}</Text>
-              <TouchableOpacity onPress={() => setRoutesVisible(false)}>
-                <Text style={styles.routesClose}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={styles.wazeButton} onPress={openWaze} activeOpacity={0.85}>
-              <Text style={{ fontSize: 18 }}>🚗</Text>
-              <Text style={styles.wazeText}>Dirija com Waze</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.mapsButton} onPress={openGoogleMaps} activeOpacity={0.85}>
-              <Text style={{ fontSize: 18 }}>🗺️</Text>
-              <Text style={styles.mapsText}>Dirija com Google Maps</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -282,7 +183,7 @@ export default function CouponsScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#f5f6f8' },
   hero: { backgroundColor: '#fff' },
-  heroBg: { height: 150, backgroundColor: NAVY, justifyContent: 'space-between', padding: 16, paddingTop: Platform.OS === 'ios' ? 20 : 40, },
+  heroBg: { height: 160, backgroundColor: NAVY, justifyContent: 'space-between', padding: 16 },
   heroHeader: { flexDirection: 'row' },
   logoRow: { flexDirection: 'row', alignItems: 'center' },
   logoPlaca: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1 },
@@ -313,7 +214,7 @@ const styles = StyleSheet.create({
   couponPrice: { fontSize: 22, fontWeight: '900', color: '#fff' },
   couponCta: { fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
   howCalc: { fontSize: 12, color: NAVY, textDecorationLine: 'underline', textAlign: 'center', marginTop: 16, marginBottom: 8 },
-  bottomNav: { flexDirection: 'row', backgroundColor: '#fff', position: 'absolute', bottom: 55, left: 20, right: 20, height: 65, borderRadius: 20, paddingVertical: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 10, borderTopWidth: 0, },
+  bottomNav: { flexDirection: 'row', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee', paddingVertical: 8, paddingBottom: Platform.OS === 'ios' ? 20 : 8 },
   navItem: { flex: 1, alignItems: 'center', gap: 2 },
   navIcon: { fontSize: 18 },
   navLabel: { fontSize: 10, color: '#aab0bc' },
@@ -332,29 +233,4 @@ const styles = StyleSheet.create({
   plateNumber: { fontSize: 32, fontWeight: '900', color: NAVY, letterSpacing: 4, fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace' },
   modalButton: { backgroundColor: NAVY, borderRadius: 30, height: 52, alignItems: 'center', justifyContent: 'center', shadowColor: NAVY, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
   modalButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  stationNameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 },
-  changeStationBtn: { backgroundColor: '#f0f2f5', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
-  changeStationText: { fontSize: 11, color: NAVY, fontWeight: '600' },
-  calcSheet: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 32, maxHeight: '85%' },
-  calcHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  calcTitle: { fontSize: 16, fontWeight: '800', color: NAVY },
-  calcClose: { fontSize: 18, color: '#aab0bc', fontWeight: '700' },
-  calcStep: { flexDirection: 'row', gap: 12, marginBottom: 20, alignItems: 'flex-start' },
-  calcStepIcon: { fontSize: 22, width: 30, textAlign: 'center', marginTop: 2 },
-  calcStepText: { flex: 1 },
-  calcStepTitle: { fontSize: 14, fontWeight: '700', color: NAVY, marginBottom: 4 },
-  calcStepDesc: { fontSize: 12, color: '#555', lineHeight: 18 },
-  calcNote: { backgroundColor: '#fffbeb', borderRadius: 10, padding: 14, marginBottom: 12 },
-  calcNoteText: { fontSize: 12, color: '#856404', lineHeight: 18 },
-  calcButton: { backgroundColor: NAVY, borderRadius: 30, height: 48, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
-  calcButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  routesOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
-  routesSheet: { backgroundColor: '#fff', borderRadius: 20, padding: 20, width: SCREEN_W * 0.82, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 16, elevation: 8 },
-  routesHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  routesTitle: { fontSize: 14, fontWeight: '700', color: NAVY, flex: 1, marginRight: 8 },
-  routesClose: { fontSize: 16, color: '#aab0bc', fontWeight: '700' },
-  wazeButton: { backgroundColor: '#00c0e8', borderRadius: 30, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 50, gap: 8, marginBottom: 10 },
-  wazeText: { fontSize: 15, fontWeight: '700', color: '#fff' },
-  mapsButton: { backgroundColor: '#fff', borderRadius: 30, borderWidth: 1.5, borderColor: '#dde2ea', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 50, gap: 8 },
-  mapsText: { fontSize: 15, fontWeight: '600', color: NAVY },
 });

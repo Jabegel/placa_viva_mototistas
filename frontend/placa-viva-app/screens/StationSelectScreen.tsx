@@ -1,36 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  ScrollView, ActivityIndicator, StatusBar, Alert,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  ActivityIndicator,
+  StatusBar,
 } from 'react-native';
-import { useUser } from '../context/UserContext';
 
 const NAVY = '#1a2e4a';
-const API_URL = 'http://192.168.0.5:8080';
+const API_URL = 'http://localhost:8080';
 
 type Station = {
   id: string;
   name: string;
   brand: string;
-  neighborhood?: string;
 };
 
+// Dados mock — em produção virão do GET /stations?city=brasilia
 const MOCK_STATIONS: Station[] = [
-  { id: 'posto-103-sul',   name: 'Posto 103 Sul',   brand: 'Petrobras', neighborhood: 'Asa Sul' },
-  { id: 'posto-203-norte', name: 'Posto 203 Norte', brand: 'Petrobras', neighborhood: 'Asa Norte' },
-  { id: 'posto-214-sul',   name: 'Posto 214 Sul',   brand: 'Petrobras', neighborhood: 'Asa Sul' },
-  { id: 'posto-312-norte', name: 'Posto 312 Norte', brand: 'Shell',     neighborhood: 'Asa Norte' },
-  { id: 'posto-sudoeste',  name: 'Posto Sudoeste',  brand: 'Ipiranga',  neighborhood: 'Sudoeste' },
+  { id: 'posto-103-sul', name: 'Posto 103 Sul', brand: 'Petrobras' },
+  { id: 'posto-203-norte', name: 'Posto 203 Norte', brand: 'Petrobras' },
+  { id: 'posto-214-sul', name: 'Posto 214 Sul', brand: 'Petrobras' },
 ];
 
 export default function StationSelectScreen({ route, navigation }: any) {
   const { city } = route.params;
-  const { user, setUser } = useUser();
   const [stations, setStations] = useState<Station[]>([]);
   const [selected, setSelected] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchStations(); }, []);
+  useEffect(() => {
+    fetchStations();
+  }, []);
 
   const fetchStations = async () => {
     try {
@@ -42,6 +46,7 @@ export default function StationSelectScreen({ route, navigation }: any) {
         setStations(MOCK_STATIONS);
       }
     } catch {
+      // Fallback para mock em desenvolvimento
       setStations(MOCK_STATIONS);
     } finally {
       setLoading(false);
@@ -55,23 +60,11 @@ export default function StationSelectScreen({ route, navigation }: any) {
     }, 150);
   };
 
-  const toggleFavorite = (station: Station) => {
-    const isFav = user.favoriteStation === station.id;
-    setUser({ favoriteStation: isFav ? '' : station.id });
-    if (!isFav) {
-      Alert.alert(
-        '⭐ Posto Favorito',
-        `"${station.name}" foi salvo como seu posto favorito!`,
-        [{ text: 'OK' }]
-      );
-    }
-  };
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-      {/* Header */}
+      {/* Header com botão voltar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backArrow}>←</Text>
@@ -97,7 +90,6 @@ export default function StationSelectScreen({ route, navigation }: any) {
           <>
             {stations.map((station) => {
               const isSelected = selected === station.id;
-              const isFav = user.favoriteStation === station.id;
               return (
                 <TouchableOpacity
                   key={station.id}
@@ -105,7 +97,7 @@ export default function StationSelectScreen({ route, navigation }: any) {
                   onPress={() => handleSelect(station)}
                   activeOpacity={0.75}
                 >
-                  <View style={styles.fuelIcon}>
+                  <View style={[styles.fuelIcon, isSelected && styles.fuelIconSelected]}>
                     <Text style={{ fontSize: 14 }}>⛽</Text>
                   </View>
                   <View style={styles.stationInfo}>
@@ -116,19 +108,10 @@ export default function StationSelectScreen({ route, navigation }: any) {
                       {station.brand}
                     </Text>
                   </View>
-                  {/* Estrela de favorito */}
-                  <TouchableOpacity
-                    onPress={() => toggleFavorite(station)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    style={styles.starButton}
-                  >
-                    <Text style={[styles.starIcon, isFav && styles.starIconActive]}>
-                      {isFav ? '★' : '☆'}
-                    </Text>
-                  </TouchableOpacity>
                 </TouchableOpacity>
               );
             })}
+
             <Text style={styles.hint}>Cada posto tem ofertas exclusivas</Text>
           </>
         )}
@@ -139,27 +122,87 @@ export default function StationSelectScreen({ route, navigation }: any) {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingTop: 16, paddingBottom: 8 },
+
+  // Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
   backButton: { marginRight: 12 },
   backArrow: { fontSize: 20, color: NAVY, fontWeight: '600' },
   logoPlaca: { fontSize: 18, fontWeight: '800', color: NAVY, letterSpacing: 1 },
   logoViva: { fontSize: 18, fontWeight: '900', color: NAVY, letterSpacing: 2 },
-  logoIcon: { backgroundColor: NAVY, borderRadius: 6, width: 28, height: 28, alignItems: 'center', justifyContent: 'center', marginLeft: 4 },
+  logoIcon: {
+    backgroundColor: NAVY,
+    borderRadius: 6,
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 4,
+  },
   barChart: { flexDirection: 'row', alignItems: 'flex-end', gap: 2 },
   bar: { width: 4, backgroundColor: '#fff', borderRadius: 1 },
+
+  // Conteúdo
   content: { paddingHorizontal: 24, paddingTop: 20, paddingBottom: 40 },
-  title: { fontSize: 26, fontWeight: '800', color: NAVY, lineHeight: 34, marginBottom: 8, textAlign: 'center' },
-  subtitle: { fontSize: 13, color: '#7a8a9a', textAlign: 'center', marginBottom: 32 },
-  stationRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f5f6f8', borderRadius: 10, paddingVertical: 14, paddingHorizontal: 16, marginBottom: 10, borderWidth: 1.5, borderColor: 'transparent' },
-  stationRowSelected: { backgroundColor: NAVY, borderColor: NAVY },
-  fuelIcon: { marginRight: 12, opacity: 0.8 },
+  title: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: NAVY,
+    lineHeight: 34,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 13,
+    color: '#7a8a9a',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+
+  // Item de posto
+  stationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f6f8',
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 10,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  stationRowSelected: {
+    backgroundColor: NAVY,
+    borderColor: NAVY,
+  },
+  fuelIcon: {
+    marginRight: 12,
+    opacity: 0.7,
+  },
+  fuelIconSelected: { opacity: 1 },
   stationInfo: { flex: 1 },
-  stationName: { fontSize: 15, fontWeight: '600', color: NAVY },
+  stationName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: NAVY,
+  },
   stationNameSelected: { color: '#fff' },
-  stationBrand: { fontSize: 12, color: '#7a8a9a', marginTop: 2 },
+  stationBrand: {
+    fontSize: 12,
+    color: '#7a8a9a',
+    marginTop: 2,
+  },
   stationBrandSelected: { color: 'rgba(255,255,255,0.7)' },
-  starButton: { paddingLeft: 8 },
-  starIcon: { fontSize: 22, color: '#ccc' },
-  starIconActive: { color: '#f5c518' },
-  hint: { fontSize: 12, color: '#7a8a9a', textAlign: 'center', marginTop: 16 },
+
+  hint: {
+    fontSize: 12,
+    color: '#7a8a9a',
+    textAlign: 'center',
+    marginTop: 16,
+  },
 });

@@ -68,6 +68,7 @@ export default function LifestyleCouponScreen({ route, navigation }: any) {
   const partner: LifestylePartner =
     MOCK_LIFESTYLE_PARTNERS[reward?.id] ?? MOCK_LIFESTYLE_PARTNERS['r2'];
 
+  const { user } = useUser();
   const [activePlateIndex, setActivePlateIndex] = useState(0);
   const plates = partner.plates ?? PLATES_MOCK;
   const activePlate = plates[activePlateIndex];
@@ -135,7 +136,7 @@ export default function LifestyleCouponScreen({ route, navigation }: any) {
         <View style={styles.section}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backRow}>
             <Text style={styles.backArrow}>←</Text>
-            <Text style={styles.greeting}>Arliton, aqui está seu cupom</Text>
+            <Text style={styles.greeting}>{user.name || 'Olá'}, aqui está seu cupom</Text>
           </TouchableOpacity>
         </View>
 

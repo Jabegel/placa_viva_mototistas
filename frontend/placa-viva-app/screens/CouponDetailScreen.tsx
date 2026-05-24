@@ -15,7 +15,6 @@ import {
   ImageBackground,
 } from 'react-native';
 import { MOCK_TERMS, type Coupon, type Station } from '../data/mockData';
-import { useUser } from '../context/UserContext';
 
 const NAVY = '#1a2e4a';
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -36,7 +35,6 @@ export default function CouponDetailScreen({ route, navigation }: Props) {
       plate: 'ABC-1D23',
     };
 
-  const { user } = useUser();
   const plates = initialPlate ? [initialPlate, ...MOCK_PLATES.filter(p => p !== initialPlate)] : MOCK_PLATES;
   const [activePlateIndex, setActivePlateIndex] = useState(0);
   const [termsVisible, setTermsVisible] = useState(false);
@@ -121,7 +119,7 @@ export default function CouponDetailScreen({ route, navigation }: Props) {
         <View style={styles.section}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backRow}>
             <Text style={styles.backArrow}>←</Text>
-            <Text style={styles.greeting}>{user.name || 'Olá'}, aqui está seu cupom</Text>
+            <Text style={styles.greeting}>João, aqui está seu cupom</Text>
           </TouchableOpacity>
         </View>
 
@@ -210,7 +208,7 @@ export default function CouponDetailScreen({ route, navigation }: Props) {
           { icon: '📍', label: 'Mapa',   active: false, onPress: () => setRoutesVisible(true) },
           { icon: '❤️', label: 'Favoritos', active: false, onPress: () => {} },
           { icon: '↗️', label: 'Indicar',   active: false, onPress: () => navigation.navigate('Share') },
-          { icon: '☰', label: 'Menu',      active: false, onPress: () => navigation.navigate('Profile') },
+          { icon: '☰', label: 'Menu',      active: false, onPress: () => {} },
         ].map((item) => (
           <TouchableOpacity key={item.label} style={styles.navItem} onPress={item.onPress}>
             <Text style={styles.navIcon}>{item.icon}</Text>
@@ -272,7 +270,7 @@ const styles = StyleSheet.create({
 
   // Hero
   hero: { backgroundColor: '#fff' },
-  heroBg: { height: 150, backgroundColor: NAVY,justifyContent: 'space-between',padding: 16,paddingTop: Platform.OS === 'ios' ? 20 : 40,},
+  heroBg: { height: 160, backgroundColor: NAVY, justifyContent: 'space-between', padding: 16 },
   heroHeader: { flexDirection: 'row' },
   logoRow: { flexDirection: 'row', alignItems: 'center' },
   logoPlaca: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1 },
@@ -376,7 +374,11 @@ const styles = StyleSheet.create({
   termsLinkText: { fontSize: 12, color: NAVY, textDecorationLine: 'underline', fontWeight: '600' },
 
   // Bottom Nav
-  bottomNav: {flexDirection: 'row',backgroundColor: '#fff',position: 'absolute',bottom: 45,left: 20,right: 20,height: 65,borderRadius: 20,paddingVertical: 8,shadowColor: '#000',shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1,shadowRadius: 10,elevation: 10,borderTopWidth: 0,},
+  bottomNav: {
+    flexDirection: 'row', backgroundColor: '#fff',
+    borderTopWidth: 1, borderTopColor: '#eee',
+    paddingVertical: 8, paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+  },
   navItem: { flex: 1, alignItems: 'center', gap: 2 },
   navIcon: { fontSize: 18 },
   navLabel: { fontSize: 10, color: '#aab0bc' },
