@@ -4,14 +4,15 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   Share,
   Linking,
   Platform,
   Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { BottomNav, Icon, PV } from '../components/PlacaVivaUI';
 
-const NAVY = '#1a2e4a';
+const NAVY = PV.navy;
 
 export default function ShareScreen({ navigation }: any) {
   const handleShare = async () => {
@@ -27,10 +28,10 @@ export default function ShareScreen({ navigation }: any) {
   };
 
   const socials = [
-    { icon: '📸', label: 'Instagram', url: 'https://instagram.com/placaviva' },
-    { icon: '💼', label: 'LinkedIn',  url: 'https://linkedin.com/company/placaviva' },
-    { icon: '🌐', label: 'Site',      url: 'https://placaviva.com.br' },
-  ];
+    { icon: 'logo-instagram',  label: 'Instagram', color: '#E1306C', url: 'https://instagram.com/placaviva' },
+    { icon: 'logo-linkedin',   label: 'LinkedIn',  color: '#0077B5', url: 'https://linkedin.com/company/placaviva' },
+    { icon: 'globe-outline',   label: 'Site',      color: PV.navy,   url: 'https://placaviva.com.br' },
+  ] as { icon: any; label: string; color: string; url: string }[];
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -68,29 +69,13 @@ export default function ShareScreen({ navigation }: any) {
               onPress={() => Linking.openURL(s.url)}
               activeOpacity={0.75}
             >
-              <Text style={styles.socialIcon}>{s.icon}</Text>
+              <Icon name={s.icon} size={26} color={s.color} />
             </TouchableOpacity>
           ))}
         </View>
       </View>
 
-      {/* Bottom Nav */}
-      <View style={styles.bottomNav}>
-        {[
-          { icon: '🎫', label: 'Cupons',    onPress: () => navigation.navigate('Coupons') },
-          { icon: '📍', label: 'Mapa',      onPress: () => {} },
-          { icon: '❤️', label: 'LifeStyle', onPress: () => navigation.navigate('Lifestyle') },
-          { icon: '↗️', label: 'Indicar',   onPress: () => {}, active: true },
-          { icon: '☰', label: 'Menu',      onPress: () => navigation.navigate('Profile') },
-        ].map((item: any) => (
-          <TouchableOpacity key={item.label} style={styles.navItem} onPress={item.onPress}>
-            <Text style={styles.navIcon}>{item.icon}</Text>
-            <Text style={[styles.navLabel, item.active && styles.navLabelActive]}>
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <BottomNav active="share" navigation={navigation} />
     </SafeAreaView>
   );
 }
@@ -131,10 +116,4 @@ const styles = StyleSheet.create({
   },
   socialIcon: { fontSize: 22 },
 
-  // Bottom Nav
-  bottomNav: {flexDirection: 'row',backgroundColor: '#fff',position: 'absolute',bottom: 55,left: 20,right: 20,height: 65,borderRadius: 20,paddingVertical: 8,shadowColor: '#000',shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1,shadowRadius: 10,elevation: 10,borderTopWidth: 0,},
-  navItem: { flex: 1, alignItems: 'center', gap: 2 },
-  navIcon: { fontSize: 18 },
-  navLabel: { fontSize: 10, color: '#aab0bc' },
-  navLabelActive: { color: NAVY, fontWeight: '700' },
 });

@@ -1,123 +1,96 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  ScrollView, StatusBar, Platform, Modal,
+  View, Text, TouchableOpacity, StyleSheet,
+  ScrollView, StatusBar, Modal, Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useUser, type Vehicle } from '../context/UserContext';
+import { Icon, MenuBottomNav, UserNavyHeader, PV } from '../components/PlacaVivaUI';
 
-const NAVY = '#1a2e4a';
+// Tipos de veículo → ícone Ionicons correspondente
+type VehicleKind = 'car' | 'suv' | 'truck' | 'motorcycle' | 'van';
 
-type Vehicle = {
-  id: string;
-  plate: string;
-  model: string;
-  fuelType: string;
-  hasAlert?: boolean;
-  image: string;
+const KIND_ICON: Record<VehicleKind, any> = {
+  car:        'car-outline',
+  suv:        'car-sport-outline',
+  truck:      'bus-outline',       // Ionicons não tem truck; bus-outline é o mais próximo
+  motorcycle: 'bicycle-outline',
+  van:        'car-outline',
 };
 
-const MOCK_VEHICLES: Vehicle[] = [
-  { id: 'v1', plate: 'ABC-1D23', model: '',        fuelType: 'Ñ',              hasAlert: true, image: '🚗' },
-  { id: 'v2', plate: 'ABC-1D23', model: 'Nivus',   fuelType: 'Gasolina Aditivada', image: '🚙' },
-  { id: 'v3', plate: 'CBA-1D23', model: 'Jeep Compass', fuelType: 'Etanol Comum', image: '🚐' },
-];
-
 export default function VehiclesScreen({ navigation }: any) {
-  const [vehicles, setVehicles] = useState(MOCK_VEHICLES);
+  const { user, vehicles, setVehicles } = useUser();
   const [removeTarget, setRemoveTarget] = useState<Vehicle | null>(null);
 
   const confirmRemove = () => {
     if (!removeTarget) return;
-    setVehicles(v => v.filter(x => x.id !== removeTarget.id));
+    setVehicles(vehicles.filter(x => x.id !== removeTarget.id));
     setRemoveTarget(null);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView style={s.safe}>
+      <StatusBar barStyle="light-content" backgroundColor={PV.navy} />
+      <UserNavyHeader onBack={() => navigation.goBack()} userName={user.name} navigation={navigation} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Veículos Cadastrados</Text>
-        <View style={{ width: 32 }} />
-      </View>
+      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <Text style={s.sectionTitle}>Veículos Cadastrados</Text>
 
-        {/* Botão Cadastrar Novo */}
-        <TouchableOpacity style={styles.addButton} activeOpacity={0.8}>
-          <View style={styles.addLogoBox}>
-            <View style={styles.barChart}>
-              <View style={[styles.bar, { height: 5 }]} />
-              <View style={[styles.bar, { height: 9 }]} />
-              <View style={[styles.bar, { height: 7 }]} />
-            </View>
-          </View>
-          <Text style={styles.addText}>Cadastrar Novo Veículo</Text>
-          <Text style={styles.addPlus}>＋</Text>
+        <TouchableOpacity style={s.addBtn} activeOpacity={0.85} onPress={() => navigation.navigate('VehicleDetail', { isNew: true })}>
+          <Text style={s.addBtnText}>Cadastrar Novo Veículo</Text>
+          <Icon name="add-circle-outline" size={22} color={PV.navy} />
         </TouchableOpacity>
 
-        {/* Lista de veículos */}
-        {vehicles.map(vehicle => (
-          <TouchableOpacity
-            key={vehicle.id}
-            style={styles.vehicleCard}
-            onPress={() => navigation.navigate('VehicleDetail', { vehicle })}
-            activeOpacity={0.8}
-          >
-            <View style={styles.vehicleImageBox}>
-              <Text style={{ fontSize: 32 }}>{vehicle.image}</Text>
-              {vehicle.hasAlert && (
-                <View style={styles.alertDot}>
-                  <Text style={{ fontSize: 10, color: '#fff' }}>!</Text>
-                </View>
+        {vehicles.map(v => (
+          <View key={v.id} style={s.card}>
+
+          {/* Thumbnail do veículo — só exibe, edição no detalhe */}
+            <View style={s.carImageBox}>
+              {v.photo ? (
+                <Image source={{ uri: v.photo }} style={s.carPhoto} />
+              ) : (
+                <Icon name={KIND_ICON[v.kind]} size={28} color={PV.navy} />
+              )}
+              {v.hasAlert && (
+                <View style={s.alertDot}><Text style={s.alertDotText}>!</Text></View>
               )}
             </View>
-            <View style={styles.vehicleInfo}>
-              {vehicle.model ? (
-                <Text style={styles.vehicleModel}>{vehicle.model}</Text>
-              ) : null}
-              <Text style={styles.vehiclePlate}>{vehicle.plate}</Text>
-              <Text style={styles.vehicleFuel}>{vehicle.fuelType}</Text>
-            </View>
-            <Text style={styles.vehicleChevron}>›</Text>
-          </TouchableOpacity>
+
+            {/* Info + navegação para detalhe */}
+            <TouchableOpacity
+              style={s.cardInfo}
+              onPress={() => navigation.navigate('VehicleDetail', { vehicle: v })}
+              activeOpacity={0.75}
+            >
+              {v.model ? <Text style={s.cardModel}>{v.model}</Text> : null}
+              <Text style={s.cardPlate}>{v.plate}</Text>
+              <View style={s.fuelRow}>
+                <View style={[s.fuelDot, { backgroundColor: v.fuelColor }]} />
+                <Text style={s.fuelText}>{v.fuelType}</Text>
+              </View>
+            </TouchableOpacity>
+
+            <Text style={s.chevron}>›</Text>
+          </View>
         ))}
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 30 }} />
       </ScrollView>
 
-      {/* Bottom Nav */}
-      <View style={styles.bottomNav}>
-        {[
-          { icon: '🎫', label: 'Cupons',    onPress: () => navigation.navigate('Coupons') },
-          { icon: '📍', label: 'Mapa',      onPress: () => {} },
-          { icon: '❤️', label: 'LifeStyle', onPress: () => navigation.navigate('Lifestyle') },
-          { icon: '↗️', label: 'Indicar',   onPress: () => navigation.navigate('Share') },
-          { icon: '☰', label: 'Menu',      onPress: () => navigation.navigate('Profile'), active: true },
-        ].map((item: any) => (
-          <TouchableOpacity key={item.label} style={styles.navItem} onPress={item.onPress}>
-            <Text style={styles.navIcon}>{item.icon}</Text>
-            <Text style={[styles.navLabel, item.active && styles.navLabelActive]}>{item.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <MenuBottomNav navigation={navigation} />
 
-      {/* Modal Descadastrar */}
+      {/* Modal descadastrar */}
       <Modal visible={!!removeTarget} transparent animationType="fade" onRequestClose={() => setRemoveTarget(null)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.confirmModal}>
-            <Text style={styles.confirmText}>
-              Deseja realmente descadastrar?{'\n'}Se "Sim" este veículo no futuro{'\n'}precisará cadastrar novamente.
-            </Text>
-            <View style={styles.confirmButtons}>
-              <TouchableOpacity style={[styles.confirmBtn, styles.btnNo]} onPress={() => setRemoveTarget(null)}>
-                <Text style={styles.btnNoText}>Não</Text>
+        <View style={s.overlay}>
+          <View style={s.modal}>
+            <Text style={s.modalText}>Deseja realmente descadastrar?{'\n'}Se quiser ter esse veículo no futuro,{'\n'}deverá cadastrá-lo novamente.</Text>
+            <View style={s.modalBtns}>
+              <TouchableOpacity style={[s.modalBtn, s.btnNo]} onPress={() => setRemoveTarget(null)}>
+                <Text style={s.btnText}>Não</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.confirmBtn, styles.btnYes]} onPress={confirmRemove}>
-                <Text style={styles.btnYesText}>Sim</Text>
+              <TouchableOpacity style={[s.modalBtn, s.btnYes]} onPress={confirmRemove}>
+                <Text style={s.btnText}>Sim</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -127,47 +100,53 @@ export default function VehiclesScreen({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f5f6f8' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f0f2f5' },
-  backBtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  backArrow: { fontSize: 20, color: NAVY, fontWeight: '700' },
-  headerTitle: { fontSize: 16, fontWeight: '800', color: NAVY },
-  content: { paddingHorizontal: 20, paddingTop: 20 },
-  barChart: { flexDirection: 'row', alignItems: 'flex-end', gap: 2 },
-  bar: { width: 3, backgroundColor: '#fff', borderRadius: 1 },
-
-  // Botão adicionar
-  addButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: NAVY, borderRadius: 12, padding: 14, marginBottom: 16, gap: 10 },
-  addLogoBox: { backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 6, width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  addText: { flex: 1, color: '#fff', fontWeight: '700', fontSize: 14 },
-  addPlus: { color: '#fff', fontSize: 22, fontWeight: '300' },
-
-  // Cards de veículo
-  vehicleCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
-  vehicleImageBox: { width: 60, height: 48, alignItems: 'center', justifyContent: 'center', position: 'relative', marginRight: 12 },
-  alertDot: { position: 'absolute', top: 0, right: 0, backgroundColor: '#e74c3c', width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
-  vehicleInfo: { flex: 1 },
-  vehicleModel: { fontSize: 14, fontWeight: '700', color: NAVY, marginBottom: 2 },
-  vehiclePlate: { fontSize: 13, color: NAVY, fontWeight: '600' },
-  vehicleFuel: { fontSize: 11, color: '#7a8a9a', marginTop: 2 },
-  vehicleChevron: { fontSize: 22, color: '#bbb' },
-
-  // Bottom Nav
-  bottomNav: {flexDirection: 'row',backgroundColor: '#fff',position: 'absolute',bottom: 55,left: 20,right: 20,height: 65,borderRadius: 20,paddingVertical: 8,shadowColor: '#000',shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1,shadowRadius: 10,elevation: 10,borderTopWidth: 0,},
-  navItem: { flex: 1, alignItems: 'center', gap: 2 },
-  navIcon: { fontSize: 18 },
-  navLabel: { fontSize: 10, color: '#aab0bc' },
-  navLabelActive: { color: NAVY, fontWeight: '700' },
-
-  // Modal
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' },
-  confirmModal: { backgroundColor: '#fff', borderRadius: 16, padding: 24, width: '78%', alignItems: 'center' },
-  confirmText: { fontSize: 13, color: NAVY, textAlign: 'center', lineHeight: 22, marginBottom: 20 },
-  confirmButtons: { flexDirection: 'row', gap: 12, width: '100%' },
-  confirmBtn: { flex: 1, height: 42, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+const s = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: '#f5f6f8' },
+  content: { paddingHorizontal: 16, paddingTop: 16 },
+  sectionTitle: { fontSize: 16, fontWeight: '800', color: PV.navy, marginBottom: 14 },
+  addBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 12,
+    borderWidth: 1.5, borderColor: PV.border, borderStyle: 'dashed',
+  },
+  addBtnText: { fontSize: 14, color: PV.navy, fontWeight: '600' },
+  card: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06, shadowRadius: 4, elevation: 2,
+  },
+  carImageBox: {
+    width: 64, height: 54, backgroundColor: '#f0f2f5', borderRadius: 10,
+    alignItems: 'center', justifyContent: 'center', marginRight: 12, position: 'relative',
+    overflow: 'hidden',
+  },
+  carPhoto: { width: '100%', height: '100%', borderRadius: 10 },
+  cameraBtn: {
+    position: 'absolute', bottom: 3, right: 3,
+    backgroundColor: PV.navy, width: 18, height: 18, borderRadius: 9,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: '#fff',
+  },
+  alertDot: {
+    position: 'absolute', top: -4, left: -4,
+    backgroundColor: '#e74c3c', width: 18, height: 18, borderRadius: 9,
+    alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff',
+  },
+  alertDotText: { color: '#fff', fontSize: 10, fontWeight: '800' },
+  cardInfo: { flex: 1 },
+  cardModel: { fontSize: 14, fontWeight: '700', color: PV.navy },
+  cardPlate: { fontSize: 13, color: PV.navy, fontWeight: '600', marginTop: 1 },
+  fuelRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
+  fuelDot: { width: 8, height: 8, borderRadius: 4 },
+  fuelText: { fontSize: 11, color: PV.gray },
+  chevron: { fontSize: 22, color: '#bbb' },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' },
+  modal: { backgroundColor: '#fff', borderRadius: 16, padding: 22, width: '78%', alignItems: 'center' },
+  modalText: { fontSize: 13, color: PV.navy, textAlign: 'center', lineHeight: 21, marginBottom: 18 },
+  modalBtns: { flexDirection: 'row', gap: 10, width: '100%' },
+  modalBtn: { flex: 1, height: 40, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   btnNo: { backgroundColor: '#e74c3c' },
   btnYes: { backgroundColor: '#27ae60' },
-  btnNoText: { color: '#fff', fontWeight: '700', fontSize: 14 },
-  btnYesText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  btnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
 });

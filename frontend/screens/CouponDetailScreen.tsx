@@ -1,36 +1,20 @@
 import React, { useState, useRef } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  Modal,
-  FlatList,
-  Dimensions,
-  Linking,
-  Platform,
-  StatusBar,
-  ImageBackground,
+  View, Text, TouchableOpacity, StyleSheet,
+  ScrollView, Modal, FlatList, Dimensions, Linking,
+  Platform, StatusBar, ImageBackground,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MOCK_TERMS, type Coupon, type Station } from '../data/mockData';
 import { useUser } from '../context/UserContext';
+import { Icon, BottomNav, PV, PlateCard } from '../components/PlacaVivaUI';
 
-const NAVY = '#1a2e4a';
-const { width: SCREEN_W } = Dimensions.get('window');
-
-// Simula múltiplas placas cadastradas pelo usuário
+const { width: SW } = Dimensions.get('window');
 const MOCK_PLATES = ['ABC-1D23', 'DEF-2E34', 'GHI-3F45'];
 
-type Props = {
-  route: any;
-  navigation: any;
-};
-
-export default function CouponDetailScreen({ route, navigation }: Props) {
-  const { coupon, station, plate: initialPlate }: { coupon: Coupon; station: Station; plate: string } =
-    route?.params || {
+export default function CouponDetailScreen({ route, navigation }: any) {
+  const { coupon, station, plate: initialPlate }: { coupon: Coupon; station: Station; plate: string }
+    = route?.params || {
       coupon: { id: '1', fuelType: 'Gasolina', fuelSubtype: 'Comum', price: 6.07, color: '#c8a832' },
       station: { name: 'Posto 214 Sul', brand: 'Petrobras', neighborhood: 'Asa Sul', id: 'posto-214-sul' },
       plate: 'ABC-1D23',
@@ -41,199 +25,150 @@ export default function CouponDetailScreen({ route, navigation }: Props) {
   const [activePlateIndex, setActivePlateIndex] = useState(0);
   const [termsVisible, setTermsVisible] = useState(false);
   const [routesVisible, setRoutesVisible] = useState(false);
-  const plateListRef = useRef<FlatList>(null);
 
-  const activePlate = plates[activePlateIndex];
+  const city = route?.params?.city || { name: 'Brasília', id: 'brasilia' };
 
-  const scrollToPlate = (dir: 'prev' | 'next') => {
-    const next = dir === 'next'
-      ? Math.min(activePlateIndex + 1, plates.length - 1)
-      : Math.max(activePlateIndex - 1, 0);
-    setActivePlateIndex(next);
-    plateListRef.current?.scrollToIndex({ index: next, animated: true });
-  };
-
-  const openWaze = () => {
-    Linking.openURL(`waze://?q=${encodeURIComponent(station.name + ' ' + station.neighborhood)}&navigate=yes`)
-      .catch(() => Linking.openURL('https://waze.com'));
-  };
-
-  const openGoogleMaps = () => {
-    const query = encodeURIComponent(`${station.name} ${station.neighborhood}`);
-    const url = Platform.OS === 'ios'
-      ? `comgooglemaps://?q=${query}`
-      : `geo:0,0?q=${query}`;
-    Linking.openURL(url).catch(() =>
-      Linking.openURL(`https://maps.google.com/?q=${query}`)
+  const scrollPlate = (dir: 'prev' | 'next') => {
+    setActivePlateIndex(i =>
+      dir === 'next' ? Math.min(i + 1, plates.length - 1) : Math.max(i - 1, 0)
     );
   };
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
+  const openWaze = () =>
+    Linking.openURL(`waze://?q=${encodeURIComponent(station.name)}&navigate=yes`)
+      .catch(() => Linking.openURL('https://waze.com'));
 
+  const openMaps = () =>
+    Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(station.name)}`);
+
+  return (
+    <SafeAreaView style={s.safe}>
+      <StatusBar barStyle="light-content" />
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* Hero igual à tela de cupons */}
-        <View style={styles.hero}>
+        {/* Hero */}
+        <View style={s.hero}>
           <ImageBackground
             source={{ uri: 'https://images.unsplash.com/photo-1545158535-c3f7168c28b6?w=600' }}
-            style={styles.heroBg}
-            imageStyle={{ opacity: 0.45 }}
+            style={s.heroBg}
+            imageStyle={{ opacity: 0.4 }}
           >
-            <View style={styles.heroHeader}>
-              <View style={styles.logoRow}>
-                <Text style={styles.logoPlaca}>PLACA </Text>
-                <Text style={styles.logoViva}>VIVA</Text>
-                <View style={styles.logoIcon}>
-                  <View style={styles.barChart}>
-                    <View style={[styles.bar, { height: 5 }]} />
-                    <View style={[styles.bar, { height: 9 }]} />
-                    <View style={[styles.bar, { height: 7 }]} />
+            <View style={s.heroHeader}>
+              <View style={s.logoRow}>
+                <View style={s.logoIconBox}>
+                  <View style={s.barChart}>
+                    <View style={[s.bar, { height: 5 }]} />
+                    <View style={[s.bar, { height: 9 }]} />
+                    <View style={[s.bar, { height: 7 }]} />
                   </View>
                 </View>
+                <Text style={s.logoText}>PLACA <Text style={s.logoViva}>VIVA</Text></Text>
               </View>
             </View>
-            <View style={styles.stationBadge}>
-              <View style={styles.stationLogo}>
-                <Text style={{ fontSize: 24 }}>⛽</Text>
+            <View style={s.stationBadge}>
+              <View style={s.stationLogoCircle}>
+                <Icon name="flash-outline" size={26} color={PV.gray} />
               </View>
-              <View style={styles.brandTag}>
-                <Text style={styles.brandText}>🟢 {station.brand?.toUpperCase()}</Text>
+              <View style={s.brandTag}>
+                <Text style={s.brandTagText}>🟢 {station.brand?.toUpperCase()}</Text>
               </View>
             </View>
           </ImageBackground>
-
-          <View style={styles.stationInfoCard}>
-            <Text style={styles.stationName}>{station.name?.toUpperCase()}</Text>
-            <Text style={styles.stationLocation}>
-              BRASÍLIA – {station.neighborhood?.toUpperCase()}
-            </Text>
-            <TouchableOpacity style={styles.goToStation} onPress={() => setRoutesVisible(true)}>
-              <Text style={styles.pinEmoji}>📍</Text>
-              <Text style={styles.goToText}>Vá até o posto</Text>
-              <Text style={styles.chevron}>›</Text>
+          <View style={s.infoCard}>
+            <Text style={s.stationName}>{station.name?.toUpperCase()}</Text>
+            <Text style={s.stationLoc}>BRASÍLIA – {station.neighborhood?.toUpperCase()}</Text>
+            <TouchableOpacity style={s.goRow} onPress={() => setRoutesVisible(true)}>
+              <Icon name="location-outline" size={14} color={PV.gray} />
+              <Text style={s.goText}>Vá até o posto</Text>
+              <Text style={s.chevron}>›</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Saudação */}
-        <View style={styles.section}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backRow}>
-            <Text style={styles.backArrow}>←</Text>
-            <Text style={styles.greeting}>{user.name || 'Olá'}, aqui está seu cupom</Text>
+        {/* Saudação + voltar */}
+        <View style={s.section}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={s.backRow}>
+            <Text style={s.backArrow}>←</Text>
+            <Text style={s.greeting}>{user.name || 'Olá'}, aqui está seu cupom</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Card do cupom */}
-        <View style={styles.couponWrapper}>
-          {coupon.tag && (
-            <View style={styles.tagBadge}>
-              <Text style={styles.tagText}>{coupon.tag}</Text>
-            </View>
-          )}
-          <View style={[styles.couponCard, { backgroundColor: coupon.color }]}>
-            <Text style={styles.couponLabel}>
+        {/* Tag + Card do cupom — fiel ao design */}
+        <View style={s.couponWrapper}>
+          {/* Label laranja do tipo (ex: GASOLINA COMUM) */}
+          <View style={s.couponTypeLabel}>
+            <Text style={s.couponTypeLabelText}>
               {coupon.fuelType.toUpperCase()} {coupon.fuelSubtype.toUpperCase()}
             </Text>
-            <Text style={styles.couponPrice}>
+          </View>
+
+          {/* Card colorido com preço grande */}
+          <View style={[s.couponCard, { backgroundColor: coupon.color }]}>
+            <Text style={s.couponPrice}>
               R$ {coupon.price.toFixed(2).replace('.', ',')}
             </Text>
-            <Text style={styles.couponSub}>Preço por litro</Text>
+            <Text style={s.couponPriceSub}>Preço por litro</Text>
           </View>
         </View>
 
         {/* Carrossel de placas */}
-        <View style={styles.plateSection}>
+        <View style={s.plateSection}>
           <TouchableOpacity
-            style={[styles.plateArrow, activePlateIndex === 0 && styles.arrowDisabled]}
-            onPress={() => scrollToPlate('prev')}
+            style={[s.plateArrow, activePlateIndex === 0 && s.arrowDisabled]}
+            onPress={() => scrollPlate('prev')}
           >
-            <Text style={styles.plateArrowText}>‹</Text>
+            <Text style={s.plateArrowText}>‹</Text>
           </TouchableOpacity>
-
-          <View style={styles.platePreview}>
-            <View style={styles.plateHeader}>
-              <Text style={styles.plateHeaderText}>PLACA VIVA</Text>
-              <View style={styles.plateHeaderIcon}>
-                <View style={styles.barChart}>
-                  <View style={[styles.bar, { height: 4, backgroundColor: NAVY }]} />
-                  <View style={[styles.bar, { height: 7, backgroundColor: NAVY }]} />
-                  <View style={[styles.bar, { height: 5, backgroundColor: NAVY }]} />
-                </View>
-              </View>
-            </View>
-            <Text style={styles.plateNumber}>{activePlate}</Text>
-          </View>
-
+          <PlateCard plate={plates[activePlateIndex]} style={{ flex: 1 }} />
           <TouchableOpacity
-            style={[styles.plateArrow, activePlateIndex === plates.length - 1 && styles.arrowDisabled]}
-            onPress={() => scrollToPlate('next')}
+            style={[s.plateArrow, activePlateIndex === plates.length - 1 && s.arrowDisabled]}
+            onPress={() => scrollPlate('next')}
           >
-            <Text style={styles.plateArrowText}>›</Text>
+            <Text style={s.plateArrowText}>›</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Dots do carrossel */}
-        <View style={styles.dotsRow}>
+        {/* Dots */}
+        <View style={s.dotsRow}>
           {plates.map((_, i) => (
-            <View key={i} style={[styles.dot, i === activePlateIndex && styles.dotActive]} />
+            <View key={i} style={[s.dot, i === activePlateIndex && s.dotActive]} />
           ))}
         </View>
 
-        {/* Info de pagamento */}
-        <View style={styles.infoBlock}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoIcon}>💳</Text>
-            <Text style={styles.infoText}>Pagamento: pix, dinheiro ou débito</Text>
+        {/* Info pagamento */}
+        <View style={s.infoBlock}>
+          <View style={s.infoRow}>
+            <Icon name="card-outline" size={14} color={PV.gray} />
+            <Text style={s.infoText}>Pagamento: pix, dinheiro ou débito</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoIcon}>⚠️</Text>
-            <Text style={styles.infoText}>
-              O valor exibido reflete o preço vigente no momento do abastecimento.
-            </Text>
+          <View style={s.infoRow}>
+            <Icon name="warning-outline" size={14} color={PV.gray} />
+            <Text style={s.infoText}>O valor exibido reflete o preço vigente no momento do abastecimento.</Text>
           </View>
         </View>
 
-        {/* Termos */}
-        <TouchableOpacity style={styles.termsLink} onPress={() => setTermsVisible(true)}>
-          <Text style={styles.termsLinkText}>Termos e Condições</Text>
+        <TouchableOpacity style={s.termsLink} onPress={() => setTermsVisible(true)}>
+          <Text style={s.termsLinkText}>Termos e Condições</Text>
         </TouchableOpacity>
 
-        <View style={{ height: 100 }} />
+        <View style={{ height: 90 }} />
       </ScrollView>
 
-      {/* Bottom Nav */}
-      <View style={styles.bottomNav}>
-        {[
-          { icon: '🎫', label: 'Cupons', active: true, onPress: () => navigation.goBack() },
-          { icon: '📍', label: 'Mapa',   active: false, onPress: () => setRoutesVisible(true) },
-          { icon: '❤️', label: 'Favoritos', active: false, onPress: () => {} },
-          { icon: '↗️', label: 'Indicar',   active: false, onPress: () => navigation.navigate('Share') },
-          { icon: '☰', label: 'Menu',      active: false, onPress: () => navigation.navigate('Profile') },
-        ].map((item) => (
-          <TouchableOpacity key={item.label} style={styles.navItem} onPress={item.onPress}>
-            <Text style={styles.navIcon}>{item.icon}</Text>
-            <Text style={[styles.navLabel, item.active && styles.navLabelActive]}>
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <BottomNav active="coupons" navigation={navigation} />
 
-      {/* ── Modal Termos e Condições ── */}
+      {/* ── Modal Termos ── */}
       <Modal visible={termsVisible} animationType="slide" transparent onRequestClose={() => setTermsVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <SafeAreaView style={styles.termsSheet}>
-            <Text style={styles.termsTitle}>Termos e Condições</Text>
-            <Text style={styles.termsSubtitle}>Por favor, revise os detalhes abaixo para continuar</Text>
-            <ScrollView style={styles.termsScroll} showsVerticalScrollIndicator={false}>
-              <View style={styles.termsBox}>
-                <Text style={styles.termsText}>{MOCK_TERMS}</Text>
+        <View style={s.termsOverlay}>
+          <SafeAreaView style={s.termsSheet}>
+            <Text style={s.termsTitle}>Termos e Condições</Text>
+            <Text style={s.termsSub}>Por favor, revise os detalhes abaixo para continuar</Text>
+            <ScrollView style={s.termsScroll} showsVerticalScrollIndicator={false}>
+              <View style={s.termsBox}>
+                <Text style={s.termsText}>{MOCK_TERMS}</Text>
               </View>
             </ScrollView>
-            <TouchableOpacity style={styles.termsButton} onPress={() => setTermsVisible(false)}>
-              <Text style={styles.termsButtonText}>Ok</Text>
+            <TouchableOpacity style={s.termsBtn} onPress={() => setTermsVisible(false)}>
+              <Text style={s.termsBtnText}>Ok</Text>
             </TouchableOpacity>
           </SafeAreaView>
         </View>
@@ -241,23 +176,21 @@ export default function CouponDetailScreen({ route, navigation }: Props) {
 
       {/* ── Modal Rotas ── */}
       <Modal visible={routesVisible} animationType="fade" transparent onRequestClose={() => setRoutesVisible(false)}>
-        <TouchableOpacity style={styles.routesOverlay} activeOpacity={1} onPress={() => setRoutesVisible(false)}>
-          <View style={styles.routesSheet}>
-            <View style={styles.routesHeader}>
-              <Text style={styles.routesTitle}>Dirija até o {station.name}</Text>
+        <TouchableOpacity style={s.routeOverlay} activeOpacity={1} onPress={() => setRoutesVisible(false)}>
+          <View style={s.routeSheet}>
+            <View style={s.routeHeader}>
+              <Text style={s.routeTitle}>Dirija até o {station.name}</Text>
               <TouchableOpacity onPress={() => setRoutesVisible(false)}>
-                <Text style={styles.routesClose}>✕</Text>
+                <Text style={s.routeClose}>✕</Text>
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity style={styles.wazeButton} onPress={openWaze} activeOpacity={0.85}>
-              <Text style={styles.wazeIcon}>🚗</Text>
-              <Text style={styles.wazeText}>Dirija com Waze</Text>
+            <TouchableOpacity style={s.wazeBtn} onPress={openWaze}>
+              <Text style={{ fontSize: 18 }}>🚗</Text>
+              <Text style={s.wazeBtnText}>Dirija com Waze</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity style={styles.mapsButton} onPress={openGoogleMaps} activeOpacity={0.85}>
-              <Text style={styles.mapsIcon}>🗺️</Text>
-              <Text style={styles.mapsText}>Dirija com Google Maps</Text>
+            <TouchableOpacity style={s.mapsBtn} onPress={openMaps}>
+              <Icon name="map-outline" size={18} color={PV.gray} />
+              <Text style={s.mapsBtnText}>Dirija com Google Maps</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -266,169 +199,72 @@ export default function CouponDetailScreen({ route, navigation }: Props) {
   );
 }
 
-// ─── STYLES ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f5f6f8' },
-
-  // Hero
+const s = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: PV.offWhite },
   hero: { backgroundColor: '#fff' },
-  heroBg: { height: 150, backgroundColor: NAVY,justifyContent: 'space-between',padding: 16,paddingTop: Platform.OS === 'ios' ? 20 : 40,},
-  heroHeader: { flexDirection: 'row' },
-  logoRow: { flexDirection: 'row', alignItems: 'center' },
-  logoPlaca: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1 },
-  logoViva: { fontSize: 15, fontWeight: '900', color: '#fff', letterSpacing: 2 },
-  logoIcon: {
-    backgroundColor: '#fff', borderRadius: 5, width: 22, height: 22,
-    alignItems: 'center', justifyContent: 'center', marginLeft: 3,
-  },
+  heroBg: { height: 170, backgroundColor: PV.navy, justifyContent: 'space-between', paddingBottom: 14 },
+  heroHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 14 },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  logoIconBox: { backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 6, width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   barChart: { flexDirection: 'row', alignItems: 'flex-end', gap: 2 },
-  bar: { width: 3, backgroundColor: NAVY, borderRadius: 1 },
-  stationBadge: { flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
-  stationLogo: {
-    width: 56, height: 56, borderRadius: 28, backgroundColor: '#fff',
-    alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)',
-  },
-  brandTag: { backgroundColor: '#fff', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, marginBottom: 4 },
-  brandText: { fontSize: 11, fontWeight: '700', color: '#1a6b1a' },
-  stationInfoCard: { paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  stationName: { fontSize: 15, fontWeight: '800', color: NAVY, letterSpacing: 0.5 },
-  stationLocation: { fontSize: 11, color: '#7a8a9a', marginTop: 2 },
-  goToStation: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 4 },
+  bar: { width: 3, backgroundColor: '#fff', borderRadius: 1 },
+  logoText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1 },
+  logoViva: { fontWeight: '900', letterSpacing: 2 },
+  stationBadge: { flexDirection: 'row', alignItems: 'flex-end', gap: 10, paddingHorizontal: 16 },
+  stationLogoCircle: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', borderWidth: 2.5, borderColor: 'rgba(255,255,255,0.5)' },
+  brandTag: { backgroundColor: '#fff', borderRadius: 7, paddingHorizontal: 8, paddingVertical: 4, marginBottom: 4 },
+  brandTagText: { fontSize: 11, fontWeight: '700', color: '#1a6b1a' },
+  infoCard: { paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: PV.border },
+  stationName: { fontSize: 14, fontWeight: '800', color: PV.navy },
+  stationLoc: { fontSize: 11, color: PV.gray, marginBottom: 6, marginTop: 2 },
+  goRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   pinEmoji: { fontSize: 12 },
-  goToText: { fontSize: 12, color: '#7a8a9a', flex: 1 },
+  goText: { fontSize: 12, color: PV.gray, flex: 1 },
   chevron: { fontSize: 16, color: '#bbb' },
-
-  // Saudação
-  section: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 4 },
+  section: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 4 },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  backArrow: { fontSize: 18, color: NAVY, fontWeight: '700' },
-  greeting: { fontSize: 14, color: NAVY, fontWeight: '500' },
-
-  // Cupom
-  couponWrapper: { paddingHorizontal: 20, marginTop: 8 },
-  tagBadge: {
-    backgroundColor: '#fff3cd', borderTopLeftRadius: 10, borderTopRightRadius: 10,
-    paddingHorizontal: 14, paddingVertical: 6,
-  },
-  tagText: { fontSize: 12, color: '#856404', fontWeight: '600' },
-  couponCard: {
-    borderRadius: 12, borderTopLeftRadius: 0,
-    paddingHorizontal: 24, paddingVertical: 24, alignItems: 'center',
-  },
-  couponLabel: { fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.85)', letterSpacing: 1 },
-  couponPrice: { fontSize: 48, fontWeight: '900', color: '#fff', marginTop: 4 },
-  couponSub: { fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 4 },
-
-  // Carrossel de placas
-  plateSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    marginTop: 20,
-    gap: 12,
-  },
-  plateArrow: {
-    width: 32, height: 32, borderRadius: 16,
-    backgroundColor: NAVY, alignItems: 'center', justifyContent: 'center',
-  },
-  arrowDisabled: { backgroundColor: '#dde2ea' },
-  plateArrowText: { fontSize: 20, color: '#fff', fontWeight: '800', lineHeight: 24 },
-  platePreview: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 3,
-    borderColor: NAVY,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  plateHeader: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
-  plateHeaderText: { fontSize: 10, fontWeight: '800', color: NAVY, letterSpacing: 1 },
-  plateHeaderIcon: {
-    backgroundColor: NAVY, borderRadius: 3, width: 16, height: 16,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  plateNumber: {
-    fontSize: 30, fontWeight: '900', color: NAVY, letterSpacing: 4,
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
-  },
-
-  // Dots
+  backArrow: { fontSize: 18, color: PV.navy, fontWeight: '700' },
+  greeting: { fontSize: 14, color: PV.navy, fontWeight: '500' },
+  // Cupom — fiel ao design de referência
+  couponWrapper: { paddingHorizontal: 16, marginTop: 10 },
+  couponTypeLabel: { paddingVertical: 8, paddingHorizontal: 14 },
+  couponTypeLabelText: { fontSize: 13, fontWeight: '700', color: PV.orange, letterSpacing: 0.5 },
+  couponCard: { borderRadius: 12, paddingVertical: 28, paddingHorizontal: 20, alignItems: 'center' },
+  couponPrice: { fontSize: 52, fontWeight: '900', color: '#fff', letterSpacing: -1 },
+  couponPriceSub: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 4 },
+  // Placa
+  plateSection: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginTop: 20, gap: 10 },
+  plateArrow: { width: 34, height: 34, borderRadius: 17, backgroundColor: PV.navy, alignItems: 'center', justifyContent: 'center' },
+  arrowDisabled: { backgroundColor: PV.border },
+  plateArrowText: { fontSize: 22, color: '#fff', fontWeight: '800', lineHeight: 26 },
   dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 12 },
-  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#dde2ea' },
-  dotActive: { backgroundColor: NAVY, width: 18 },
-
+  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: PV.border },
+  dotActive: { backgroundColor: PV.navy, width: 18 },
   // Info
-  infoBlock: { paddingHorizontal: 20, marginTop: 20, gap: 10 },
+  infoBlock: { paddingHorizontal: 16, marginTop: 18, gap: 10 },
   infoRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   infoIcon: { fontSize: 14, marginTop: 1 },
-  infoText: { fontSize: 12, color: '#7a8a9a', flex: 1, lineHeight: 18 },
-
-  // Termos link
-  termsLink: { alignSelf: 'center', marginTop: 16 },
-  termsLinkText: { fontSize: 12, color: NAVY, textDecorationLine: 'underline', fontWeight: '600' },
-
-  // Bottom Nav
-  bottomNav: {flexDirection: 'row',backgroundColor: '#fff',position: 'absolute',bottom: 45,left: 20,right: 20,height: 65,borderRadius: 20,paddingVertical: 8,shadowColor: '#000',shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1,shadowRadius: 10,elevation: 10,borderTopWidth: 0,},
-  navItem: { flex: 1, alignItems: 'center', gap: 2 },
-  navIcon: { fontSize: 18 },
-  navLabel: { fontSize: 10, color: '#aab0bc' },
-  navLabelActive: { color: NAVY, fontWeight: '700' },
-
-  // Modal Termos
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
-  termsSheet: { flex: 1, backgroundColor: '#fff', margin: 0, paddingHorizontal: 24, paddingTop: 32 },
-  termsTitle: { fontSize: 22, fontWeight: '800', color: NAVY, marginBottom: 6 },
-  termsSubtitle: { fontSize: 13, color: '#7a8a9a', marginBottom: 16 },
+  infoText: { fontSize: 12, color: PV.gray, flex: 1, lineHeight: 18 },
+  termsLink: { alignSelf: 'center', marginTop: 14 },
+  termsLinkText: { fontSize: 12, color: PV.navy, textDecorationLine: 'underline', fontWeight: '600' },
+  // Termos
+  termsOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
+  termsSheet: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 22, paddingTop: 28 },
+  termsTitle: { fontSize: 22, fontWeight: '800', color: PV.navy, marginBottom: 5 },
+  termsSub: { fontSize: 13, color: PV.gray, marginBottom: 14 },
   termsScroll: { flex: 1 },
-  termsBox: {
-    backgroundColor: '#f5f6f8', borderRadius: 12,
-    padding: 16, marginBottom: 20,
-  },
+  termsBox: { backgroundColor: PV.offWhite, borderRadius: 10, padding: 14, marginBottom: 16 },
   termsText: { fontSize: 12, color: '#444', lineHeight: 20 },
-  termsButton: {
-    backgroundColor: NAVY, borderRadius: 30,
-    height: 52, alignItems: 'center', justifyContent: 'center',
-    marginBottom: 16,
-  },
-  termsButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-
-  // Modal Rotas
-  routesOverlay: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center', alignItems: 'center',
-  },
-  routesSheet: {
-    backgroundColor: '#fff', borderRadius: 20,
-    padding: 20, width: SCREEN_W * 0.82,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2, shadowRadius: 16, elevation: 8,
-  },
-  routesHeader: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: 16,
-  },
-  routesTitle: { fontSize: 14, fontWeight: '700', color: NAVY, flex: 1, marginRight: 8 },
-  routesClose: { fontSize: 16, color: '#aab0bc', fontWeight: '700' },
-  wazeButton: {
-    backgroundColor: '#00c0e8', borderRadius: 30,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    height: 50, gap: 8, marginBottom: 10,
-  },
-  wazeIcon: { fontSize: 18 },
-  wazeText: { fontSize: 15, fontWeight: '700', color: '#fff' },
-  mapsButton: {
-    backgroundColor: '#fff', borderRadius: 30, borderWidth: 1.5, borderColor: '#dde2ea',
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    height: 50, gap: 8,
-  },
-  mapsIcon: { fontSize: 18 },
-  mapsText: { fontSize: 15, fontWeight: '600', color: NAVY },
+  termsBtn: { backgroundColor: PV.navy, borderRadius: 30, height: 50, alignItems: 'center', justifyContent: 'center', marginBottom: 14 },
+  termsBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  // Rotas
+  routeOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
+  routeSheet: { backgroundColor: '#fff', borderRadius: 20, padding: 20, width: SW * 0.82 },
+  routeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
+  routeTitle: { fontSize: 14, fontWeight: '700', color: PV.navy, flex: 1, marginRight: 8, lineHeight: 20 },
+  routeClose: { fontSize: 16, color: PV.grayLight, fontWeight: '700' },
+  wazeBtn: { backgroundColor: '#00c0e8', borderRadius: 30, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 50, gap: 8, marginBottom: 10 },
+  wazeBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' },
+  mapsBtn: { backgroundColor: '#fff', borderRadius: 30, borderWidth: 1.5, borderColor: PV.border, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 50, gap: 8 },
+  mapsBtnText: { fontSize: 15, fontWeight: '600', color: PV.navy },
 });

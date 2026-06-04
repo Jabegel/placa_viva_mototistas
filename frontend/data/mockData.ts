@@ -122,3 +122,300 @@ export const MOCK_CITIES = [
     { id: 'luziania',  name: 'Luziânia',  state: 'GO' },
   ]},
 ];
+
+// ─── TIPOS CAMINHÃO ────────────────────────────────────────────────────────────
+export type TruckVehicle = {
+  id: string;
+  plate: string;
+  model: string;          // ex: Volvo FH, Scania R450
+  brand: string;
+  axles: number;          // eixos: 3, 4, 5, 6
+  tankCapacity: number;   // litros
+  fuelType: 'diesel-s10' | 'diesel-s500';
+  image: string;
+};
+
+export type FuelHistory = {
+  id: string;
+  stationName: string;
+  stationBrand: string;
+  date: string;           // ISO
+  time: string;
+  liters: number;
+  pricePerLiter: number;
+  subtotal: number;
+  discount: number;
+  total: number;
+  fuelType: string;
+  paymentMethod: string;
+  nfKey?: string;
+};
+
+// ─── VEÍCULOS CAMINHÃO MOCK ───────────────────────────────────────────────────
+export const MOCK_TRUCK_VEHICLES: TruckVehicle[] = [
+  {
+    id: 'truck-1',
+    plate: 'BRA-2E23',
+    model: 'FH 540 Globetrotter',
+    brand: 'Volvo',
+    axles: 6,
+    tankCapacity: 600,
+    fuelType: 'diesel-s10',
+    image: '🚛',
+  },
+  {
+    id: 'truck-2',
+    plate: 'ABC-1D23',
+    model: 'R 450 Highline',
+    brand: 'Scania',
+    axles: 5,
+    tankCapacity: 500,
+    fuelType: 'diesel-s10',
+    image: '🚚',
+  },
+];
+
+// ─── HISTÓRICO MOCK ───────────────────────────────────────────────────────────
+export const MOCK_FUEL_HISTORY: FuelHistory[] = [
+  // Maio 2026 (05)
+  {
+    id: 'h_may1',
+    stationName: 'Posto de Combustíveis 214 Sul Petrobras',
+    stationBrand: 'Petrobras',
+    date: '2026-05-24',
+    time: '18:15',
+    liters: 50,
+    pricePerLiter: 7.30,
+    subtotal: 365.00,
+    discount: 15.00,
+    total: 350.00,
+    fuelType: 'Diesel S-10 Pro',
+    paymentMethod: 'PIX',
+    nfKey: '43260524203526000168650010000012371234567893',
+  },
+  {
+    id: 'h_may2',
+    stationName: 'Posto São Bento 203 Norte Petrobras',
+    stationBrand: 'Petrobras',
+    date: '2026-05-18',
+    time: '10:45',
+    liters: 55,
+    pricePerLiter: 7.25,
+    subtotal: 398.75,
+    discount: 16.50,
+    total: 382.25,
+    fuelType: 'Diesel S-10 Pro',
+    paymentMethod: 'Débito',
+  },
+  {
+    id: 'h_may3',
+    stationName: 'Posto Jarjour 206 Norte',
+    stationBrand: 'Ipiranga',
+    date: '2026-05-04',
+    time: '14:20',
+    liters: 48,
+    pricePerLiter: 7.10,
+    subtotal: 340.80,
+    discount: 12.00,
+    total: 328.80,
+    fuelType: 'Diesel S-500 Pro',
+    paymentMethod: 'PIX',
+  },
+  // Abril 2026 (04)
+  {
+    id: 'h1',
+    stationName: 'Posto de Combustíveis 214 Sul Petrobras',
+    stationBrand: 'Petrobras',
+    date: '2026-04-12',
+    time: '14:30',
+    liters: 40,
+    pricePerLiter: 7.38,
+    subtotal: 295.20,
+    discount: 10.40,
+    total: 284.80,
+    fuelType: 'Diesel S-10 Pro',
+    paymentMethod: 'PIX',
+    nfKey: '43260414203526000168650010000012341234567890',
+  },
+  {
+    id: 'h2',
+    stationName: 'Posto de Combustíveis 214 Sul Petrobras',
+    stationBrand: 'Petrobras',
+    date: '2026-04-08',
+    time: '09:15',
+    liters: 35,
+    pricePerLiter: 7.12,
+    subtotal: 249.20,
+    discount: 7.70,
+    total: 241.50,
+    fuelType: 'Diesel S-10 Pro',
+    paymentMethod: 'Débito',
+    nfKey: '43260414203526000168650010000012351234567891',
+  },
+  // Março 2026 (03)
+  {
+    id: 'h3',
+    stationName: 'Posto São Bento 203 Norte Petrobras',
+    stationBrand: 'Petrobras',
+    date: '2026-03-29',
+    time: '07:40',
+    liters: 55,
+    pricePerLiter: 7.25,
+    subtotal: 398.75,
+    discount: 14.20,
+    total: 384.55,
+    fuelType: 'Diesel S-10 Pro',
+    paymentMethod: 'PIX',
+  },
+  {
+    id: 'h4',
+    stationName: 'Posto Jarjour 206 Norte',
+    stationBrand: 'Ipiranga',
+    date: '2026-03-21',
+    time: '16:00',
+    liters: 48,
+    pricePerLiter: 7.10,
+    subtotal: 340.80,
+    discount: 9.60,
+    total: 331.20,
+    fuelType: 'Diesel S-500 Pro',
+    paymentMethod: 'Dinheiro',
+  },
+  {
+    id: 'h5',
+    stationName: 'Posto de Combustíveis 214 Sul Petrobras',
+    stationBrand: 'Petrobras',
+    date: '2026-03-15',
+    time: '11:20',
+    liters: 60,
+    pricePerLiter: 7.30,
+    subtotal: 438.00,
+    discount: 18.00,
+    total: 420.00,
+    fuelType: 'Diesel S-10 Pro',
+    paymentMethod: 'PIX',
+    nfKey: '43260414203526000168650010000012361234567892',
+  },
+  // Fevereiro 2026 (02)
+  {
+    id: 'h_feb1',
+    stationName: 'Posto de Combustíveis 214 Sul Petrobras',
+    stationBrand: 'Petrobras',
+    date: '2026-02-22',
+    time: '16:10',
+    liters: 42,
+    pricePerLiter: 7.20,
+    subtotal: 302.40,
+    discount: 10.50,
+    total: 291.90,
+    fuelType: 'Diesel S-10 Pro',
+    paymentMethod: 'PIX',
+  },
+  {
+    id: 'h_feb2',
+    stationName: 'Posto Jarjour 206 Norte',
+    stationBrand: 'Ipiranga',
+    date: '2026-02-10',
+    time: '08:30',
+    liters: 38,
+    pricePerLiter: 7.10,
+    subtotal: 269.80,
+    discount: 7.60,
+    total: 262.20,
+    fuelType: 'Diesel S-500 Pro',
+    paymentMethod: 'Débito',
+  },
+  // Janeiro 2026 (01)
+  {
+    id: 'h_jan1',
+    stationName: 'Posto de Combustíveis 214 Sul Petrobras',
+    stationBrand: 'Petrobras',
+    date: '2026-01-28',
+    time: '11:45',
+    liters: 50,
+    pricePerLiter: 7.15,
+    subtotal: 357.50,
+    discount: 12.50,
+    total: 345.00,
+    fuelType: 'Diesel S-10 Pro',
+    paymentMethod: 'PIX',
+  },
+  {
+    id: 'h_jan2',
+    stationName: 'Posto São Bento 203 Norte Petrobras',
+    stationBrand: 'Petrobras',
+    date: '2026-01-15',
+    time: '09:00',
+    liters: 45,
+    pricePerLiter: 7.10,
+    subtotal: 319.50,
+    discount: 9.00,
+    total: 310.50,
+    fuelType: 'Diesel S-10 Pro',
+    paymentMethod: 'PIX',
+  },
+];
+
+// ─── POSTOS PRO (com diesel e info de rota) ───────────────────────────────────
+export type TruckStation = {
+  id: string;
+  name: string;
+  brand: string;
+  neighborhood: string;
+  distance: number;       // km
+  dieselS10Price: number;
+  dieselS500Price?: number;
+  discount: number;
+  estimatedSavings: number;
+  hasParking: boolean;    // estacionamento para caminhão
+  hasTruckLane: boolean;  // pista exclusiva
+};
+
+export const MOCK_TRUCK_STATIONS: TruckStation[] = [
+  {
+    id: 'ts-1',
+    name: 'Posto de Combustíveis 214 Sul Petrobras',
+    brand: 'Petrobras',
+    neighborhood: 'Asa Sul',
+    distance: 1.2,
+    dieselS10Price: 6.39,
+    dieselS500Price: 6.10,
+    discount: 0.20,
+    estimatedSavings: 10.00,
+    hasParking: true,
+    hasTruckLane: true,
+  },
+  {
+    id: 'ts-2',
+    name: 'Posto São Bento 203 Norte Petrobras',
+    brand: 'Petrobras',
+    neighborhood: 'Asa Norte',
+    distance: 4.5,
+    dieselS10Price: 6.44,
+    dieselS500Price: 6.15,
+    discount: 0.25,
+    estimatedSavings: 15.00,
+    hasParking: true,
+    hasTruckLane: false,
+  },
+  {
+    id: 'ts-3',
+    name: 'Posto Jarjour 206 Norte',
+    brand: 'Ipiranga',
+    neighborhood: 'Asa Norte',
+    distance: 4.6,
+    dieselS10Price: 6.35,
+    discount: 0.25,
+    estimatedSavings: 15.00,
+    hasParking: false,
+    hasTruckLane: false,
+  },
+];
+
+// helper de economia acumulada no mês
+export function getMonthlyStats(history: FuelHistory[]) {
+  const total = history.reduce((acc, h) => acc + h.total, 0);
+  const savings = history.reduce((acc, h) => acc + h.discount, 0);
+  const liters = history.reduce((acc, h) => acc + h.liters, 0);
+  return { total, savings, liters };
+}

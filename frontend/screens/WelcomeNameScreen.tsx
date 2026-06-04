@@ -1,8 +1,10 @@
+import { Icon, PV } from '../components/PlacaVivaUI';
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, KeyboardAvoidingView, Platform,
+  StatusBar, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUser } from '../context/UserContext';
 
 const NAVY = '#1a2e4a';
@@ -40,7 +42,7 @@ export default function WelcomeNameScreen({ navigation }: any) {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.emoji}>👋</Text>
+          <Icon name="hand-left-outline" size={40} color={PV.gray} />
           <Text style={styles.title}>Olá! Como você{'\n'}quer ser chamado?</Text>
           <Text style={styles.subtitle}>
             Usaremos esse nome para personalizar{'\n'}sua experiência no app.

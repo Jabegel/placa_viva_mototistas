@@ -4,10 +4,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Icon } from '../components/PlacaVivaUI';
 
 const NAVY = '#1a2e4a';
 
@@ -80,7 +81,11 @@ export default function CitySelectScreen({ navigation }: any) {
                   activeOpacity={0.75}
                 >
                   <View style={[styles.pinIcon, isSelected && styles.pinIconSelected]}>
-                    <Text style={{ fontSize: 12 }}>{isSelected ? '📍' : '📌'}</Text>
+                    <Icon
+                      name={isSelected ? 'location' : 'location-outline'}
+                      size={18}
+                      color={isSelected ? '#fff' : NAVY}
+                    />
                   </View>
                   <Text style={[styles.cityName, isSelected && styles.cityNameSelected]}>
                     {city.name}

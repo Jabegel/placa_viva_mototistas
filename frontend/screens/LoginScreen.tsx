@@ -1,3 +1,4 @@
+import { Icon, PV } from '../components/PlacaVivaUI';
 import React, { useState } from 'react';
 import {
   View,
@@ -7,11 +8,11 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Troque pelo IP da sua máquina ao rodar em dispositivo físico
 const API_URL = 'http://192.168.0.5:8080';
@@ -128,7 +129,7 @@ export default function LoginScreen({ navigation }: any) {
           </TouchableOpacity>
 
           <View style={styles.secureRow}>
-            <Text style={styles.secureIcon}>🔒</Text>
+            <Icon name="lock-closed-outline" size={17} color={PV.gray} />
             <Text style={styles.secureText}>Seus dados são protegidos</Text>
           </View>
         </View>

@@ -4,14 +4,15 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   Platform,
   ImageBackground,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Icon, BottomNav, PV } from '../components/PlacaVivaUI';
 
-const NAVY = '#1a2e4a';
+const NAVY = PV.navy;
 const ORANGE = '#e8820c';
 
 // ─── DADOS MOCK DE PARCEIROS ──────────────────────────────────────────────────
@@ -125,7 +126,7 @@ export default function LifestyleCouponScreen({ route, navigation }: any) {
             <Text style={styles.partnerName}>{partner.partnerName.toUpperCase()}</Text>
             <Text style={styles.partnerCategory}>LIFESTYLE</Text>
             <TouchableOpacity style={styles.goToPartner}>
-              <Text style={styles.pinEmoji}>📍</Text>
+              <Icon name="location-outline" size={14} color={PV.gray} />
               <Text style={styles.goToText}>Vá até a {partner.partnerName}</Text>
               <Text style={styles.chevron}>›</Text>
             </TouchableOpacity>
@@ -198,17 +199,17 @@ export default function LifestyleCouponScreen({ route, navigation }: any) {
           <Text style={styles.detailsText}>{partner.couponDescription}</Text>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoIcon}>📍</Text>
+            <Icon name="location-outline" size={14} color={PV.gray} />
             <Text style={styles.infoText}>{partner.validAt}</Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoIcon}>💳</Text>
+            <Icon name="card-outline" size={14} color={PV.gray} />
             <Text style={styles.infoText}>{partner.paymentNote}</Text>
           </View>
 
           <TouchableOpacity style={styles.termsRow}>
-            <Text style={styles.infoIcon}>📄</Text>
+            <Icon name="document-text-outline" size={17} color={PV.gray} />
             <Text style={styles.termsText}>{partner.termsNote}</Text>
           </TouchableOpacity>
         </View>
