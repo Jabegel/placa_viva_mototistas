@@ -54,6 +54,21 @@ export default function StationSelectScreen({ route, navigation }: any) {
       <ScrollView contentContainerStyle={s.content}>
         <Text style={s.title}>Seus descontos{'\n'}estão prontos</Text>
         <Text style={s.sub}>Escolha o posto para começar</Text>
+        <TouchableOpacity 
+      style={{
+        backgroundColor: '#1e3a5f',
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 20,
+        alignItems: 'center'
+      }} 
+      onPress={() => navigation.navigate('ProfitRoute')}
+    >
+      <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+        Calcular Rota de Lucro (PRO)
+      </Text>
+    </TouchableOpacity>
+
 
         {loading
           ? <ActivityIndicator color={PV.navy} style={{ marginTop: 40 }} />

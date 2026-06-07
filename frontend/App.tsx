@@ -24,6 +24,7 @@ import TruckCouponsScreen from './screens/TruckCouponsScreen';
 import TruckHistoryScreen from './screens/TruckHistoryScreen';
 import TruckReceiptScreen from './screens/TruckReceiptScreen';
 import TruckBenefitsScreen from './screens/TruckBenefitsScreen';
+import ProfitRouteScreen from './screens/RotaLucroScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,6 +59,8 @@ export default function App() {
           <Stack.Screen name="TruckHistory"    component={TruckHistoryScreen} />
           <Stack.Screen name="TruckReceipt"    component={TruckReceiptScreen} />
           <Stack.Screen name="TruckBenefits"   component={TruckBenefitsScreen} />
+          {/* Rota de Lucro */}
+          <Stack.Screen name="ProfitRoute"     component={ProfitRouteScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>
