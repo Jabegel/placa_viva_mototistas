@@ -1,8 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router'; // <--- NOVO: Importando o hook de navegação
 
 export default function ProfitRouteScreen() {
+  const router = useRouter(); // <--- NOVO: Inicializando o router para controlar o botão de voltar
   // Estado para o que o usuário está digitando
   const [destinationInput, setDestinationInput] = useState('');
   
@@ -102,6 +104,9 @@ export default function ProfitRouteScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
        <View style={styles.header}>
+       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>//novo
+            <MaterialIcons name="arrow-back" size={24} color="#1e3a5f" />//novo
+          </TouchableOpacity>//novo
           <View style={styles.logoPlaceholder}>
             <Image 
               source={require('../assets/icon.png')}
@@ -173,10 +178,11 @@ export default function ProfitRouteScreen() {
 }
 
 // Os estilos continuam intocados
-const styles = StyleSheet.create({
+  const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F9FA' },
   scrollContent: { padding: 20 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 30, marginTop: 20 },
+  backButton: { marginRight: 15, padding: 5 }, // <--- NOVO: Espaçamento do botão de voltar
   logoPlaceholder: { alignItems: 'center', marginRight: 15 },
   realLogo: { width: 36, height: 36, borderRadius: 8 },
   logoText: { color: '#1e3a5f', fontSize: 12, fontWeight: 'bold', marginTop: 2 },
